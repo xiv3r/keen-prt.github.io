@@ -17,10 +17,12 @@ jobs:
 
     - name: Download files
       run: |
+        sudo apt update 
+        sudo apt install aria2 -y
         mkdir -p downloads
         cd downloads
-        wget -r -l1 -np -nH -N -w 2 -U "Mozilla/5.0" -e robots=off -A "*" "https://github.com/keen-prt/keen-prt.github.io/blob/main/public/assets/files/firmware/"
-
+        aria2c -j 10 -Z --force-sequential=false --check-certificate=false --user-agent="Mozilla/5.0" "https://github.com/keen-prt/keen-prt.github.io/raw/main/public/assets/files/firmware/"
+        
     - name: Create and push tag
       id: tag_version
       run: |
