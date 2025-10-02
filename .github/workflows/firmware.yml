@@ -19,15 +19,15 @@ jobs:
       run: |
         mkdir -p downloads
         cd downloads
-        wget -r -l1 -np -nH -N -w 2 -U "Mozilla/5.0" -e robots=off -A "*" "https://raw.githubusercontent.com/keen-prt/keen-prt.github.io/refs/heads/main/public/assets/files/firmware/"
-  
+        wget https://raw.githubusercontent.com/keen-prt/keen-prt.github.io/refs/heads/main/public/assets/files/firmware/Xiaomi-4C.7z
+
     - name: Create and push tag
       id: tag_version
       run: |
         if [ "${{ github.event_name }}" == "release" ]; then
           VERSION="${{ github.event.release.tag_name }}"
         else
-            VERSION="firmware"
+            VERSION="xiaomi-4c"
         fi
         
         git config --local user.email "action@github.com"
