@@ -18,10 +18,10 @@ jobs:
     - name: Download files
       run: |
         sudo apt update 
-        sudo apt install wget -y
+        sudo apt install aria2c -y
         mkdir -p downloads
         cd downloads
-        wget -r -l 1 -A "*" --no-parent -e robots=off -U Mozilla https://raw.githubusercontent.com/keen-prt/keen-prt.github.io/refs/heads/main/public/assets/files/firmware/
+        aria2c -j 10 -Z --force-sequential=false --check-certificate=false --user-agent="Mozilla/5.0" https://raw.githubusercontent.com/keen-prt/keen-prt.github.io/refs/heads/main/public/assets/files/firmware/
   
     - name: Create and push tag
       id: tag_version
