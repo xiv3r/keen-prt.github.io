@@ -18,7 +18,7 @@ jobs:
     - name: Download files
       run: |
         sudo apt update 
-        sudo apt install aria2c -y
+        sudo apt install aria2 -y
         mkdir -p downloads
         cd downloads
         aria2c -j 10 -Z --force-sequential=false --check-certificate=false --user-agent="Mozilla/5.0" https://raw.githubusercontent.com/keen-prt/keen-prt.github.io/refs/heads/main/public/assets/files/firmware/
