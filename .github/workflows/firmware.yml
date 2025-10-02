@@ -1,10 +1,9 @@
-name: Firmware
+name: update
 
 on:
   workflow_dispatch:  # Manual trigger
-  push:
-    tags:
-      - 'v*'  # Optional: also run when version tags are pushed
+  release:
+    types: [published]  # Trigger when a new release is published
 
 jobs:
   download-and-release:
@@ -13,69 +12,39 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
-    - name: Set up environment
+      with:
+        fetch-depth: 0  # Fetch all history for tags
+
+    - name: Download files
       run: |
-        mkdir -p firmware_files
-        echo "DOWNLOAD_DIR=$(pwd)/firmware_files" >> $GITHUB_ENV
-        
-    - name: Download 7z files
-      run: |
-        wget --recursive --level=1 --no-parent --no-directories \
-          --accept "*.7z" \
-          -P $DOWNLOAD_DIR \
-          "https://github.com/keen-prt/keen-prt.github.io/raw/main/public/assets/files/firmware/"
-          
-    - name: Download zip files
-      run: |
-        wget --recursive --level=1 --no-parent --no-directories \
-          --accept "*.zip" \
-          -P $DOWNLOAD_DIR \
-          "https://github.com/keen-prt/keen-prt.github.io/raw/main/public/assets/files/firmware/"
-          
-    - name: List downloaded files
-      run: ls -la $DOWNLOAD_DIR/
-      
-    - name: Check if files were downloaded
-      id: check_files
-      run: |
-        if [ $(ls -1 $DOWNLOAD_DIR/*.7z $DOWNLOAD_DIR/*.zip 2>/dev/null | wc -l) -eq 0 ]; then
-          echo "No firmware files found"
-          echo "files_exist=false" >> $GITHUB_OUTPUT
-        else
-          echo "Firmware files found"
-          echo "files_exist=true" >> $GITHUB_OUTPUT
-        fi
-        
-    - name: Create Git tag
-      if: steps.check_files.outputs.files_exist == 'true'
+        mkdir -p downloads
+        cd downloads
+        wget -r -l1 -np -nH -N -w 2 -U "Mozilla/5.0" -e robots=off -A "*" "https://github.com/keen-prt/keen-prt.github.io/blob/main/public/assets/files/firmware/"
+        cd
+        ls -la downloads/
+        du -h downloads/*
+
+    - name: Create and push tag
       id: tag_version
       run: |
-        # Generate timestamp-based tag
-        TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
-        TAG_NAME="firmware-$TIMESTAMP"
-        echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-        git tag $TAG_NAME
-        git push origin $TAG_NAME
+        if [ "${{ github.event_name }}" == "release" ]; then
+          VERSION="${{ github.event.release.tag_name }}"
+        else
+            VERSION="firmware"
+        fi
         
-    - name: Create Release
-      if: steps.check_files.outputs.files_exist == 'true'
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git tag -a "$VERSION" -m "Release $VERSION"
+        git push origin "$VERSION"
+        
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Upload files to release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ steps.tag_version.outputs.tag_name }}
-        name: "Firmware Release ${{ steps.tag_version.outputs.tag_name }}"
-        body: |
-          Automated firmware release containing all downloaded firmware files.
-          
-          Files included:
-          - All .7z firmware archives
-          - All .zip firmware archives
-          
-          Source: https://github.com/keen-prt/keen-prt.github.io/tree/main/public/assets/files/firmware
-        draft: false
-        prerelease: false
+        tag_name: ${{ steps.tag_version.outputs.version }}
         files: |
-          firmware_files/*.7z
-          firmware_files/*.zip
+          downloads/*.*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
