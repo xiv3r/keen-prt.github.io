@@ -20,9 +20,6 @@ jobs:
         mkdir -p downloads
         cd downloads
         wget -r -l1 -np -nH -N -w 2 -U "Mozilla/5.0" -e robots=off -A "*" "https://github.com/keen-prt/keen-prt.github.io/blob/main/public/assets/files/firmware/"
-        cd
-        ls -la downloads/
-        du -h downloads/*
 
     - name: Create and push tag
       id: tag_version
