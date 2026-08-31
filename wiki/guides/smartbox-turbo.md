@@ -36,16 +36,16 @@
 
 ## Установка
 
-Сначала установите загрузчик KeenBOOT и подготовьте EEPROM (шаги ниже), затем выберите один из двух способов прошивки — **Способ #1** (через KeenBOOT, рекомендуется) или **Способ #2** (через Breed и TelNet).
+Сначала установите загрузчик KeenBOOT и подготовьте EEPROM (шаги ниже), затем выберите один из двух способов прошивки — **Способ #1** (через KeenBOOT, рекомендуется) или **Способ #2** (через Breed и Telnet).
 
 ### Установка загрузчика KeenBOOT и подготовка EEPROM
 
-1. **Установка OpenWRT.** Установите [OpenWRT](https://openwrt.org/toh/beeline/smartbox_turbo_plus#oem_easy_installation).
-2. **Сохранение калибровок.** Сохраните из LuCI (вкладка `System - Backup / Flash firmware`) раздел `factory`.
-3. **Конвертация EEPROM.** Сконвертируйте полученный файл в валидный EEPROM для Keenetic: [переместите калибровку](https://yeezyio.github.io/EepromMover.html), затем в полученном файле [смените MAC-адрес](https://yeezyio.github.io/EepromConverter.html).
-4. **Подготовка архива.** Добавьте в папку патченный EEPROM.
+1. **Установка OpenWrt.** Установите [OpenWrt](https://openwrt.org/toh/beeline/smartbox_turbo_plus#oem_easy_installation).
+2. **Сохранение калибровок.** Сохраните из LuCI (вкладка `System - Backup / Flash firmware`) раздел `factory` (он же `eeprom`).
+3. **Подготовка EEPROM.** Сначала [переместите калибровку](/wiki/helpful/tools#mover), затем в полученном файле [внесите MAC-адрес](/wiki/helpful/tools#converter). В результате получится EEPROM, совместимый с Keenetic.
+4. **Подготовка архива.** Добавьте в папку подготовленный EEPROM.
 5. **Установка пакета.** Установите пакет `kmod-mtd-rw` или выполните обновление файлом `openwrt-sysupgrade.bin` — в нём пакет уже содержится.
-6. **Раздача загрузчика.** Откройте `KeenBOOT-SB_Turbo_v1.5.bin` из архива в `HFS.exe`.
+6. **Установка загрузчика.** Откройте `KeenBOOT-SB_Turbo.bin` из архива в `HFS.exe`.
 7. **Определение раздела.** По SSH выполните команду:
 
    ```shell
@@ -65,10 +65,10 @@
 
    ```shell
    cd /tmp
-   wget http://192.168.1.2/KeenBOOT-SB_Turbo_v1.5.bin
+   wget http://192.168.1.2/KeenBOOT-SB_Turbo.bin
    insmod mtd-rw i_want_a_brick=1
    mtd unlock /dev/mtd0
-   mtd write /tmp/KeenBOOT-SB_Turbo_v1.5.bin u-boot
+   mtd write /tmp/KeenBOOT-SB_Turbo.bin u-boot
    reboot
    ```
 
@@ -84,7 +84,7 @@ URL: `192.168.1.1`<br/>SSID: `Keenetic`<br/>Пароль Wi-Fi: `12345678`
 
 ### Способ #2 <Badge type="keenetic" text="Старый" />
 
-1. **Раздача файлов.** В папке перетащите все `bin`-файлы на `HFS.exe`.
+1. **Раздача файлов.** Запустите `HFS.exe` и перетащите в его окно все `.bin`-файлы из папки с прошивкой.
 
    ![Файлы прошивки в HFS](/assets/images/wiki/guides/TP-Link-EC330/openhfs.png)
 
@@ -94,7 +94,7 @@ URL: `192.168.1.1`<br/>SSID: `Keenetic`<br/>Пароль Wi-Fi: `12345678`
    ![Статический IP на сетевой карте](/assets/images/wiki/helpful/breed/networkStatic.png)
    :::
 
-2. **Прошивка через TelNet.** Запустите Putty, зайдите по TelNet (`192.168.1.1` port `23`) и вставляйте (ПКМ) команды по очереди, дожидаясь выполнения предыдущей.
+2. **Прошивка через Telnet.** Запустите PuTTY, подключитесь по Telnet к `192.168.1.1` на порту `23` и вставляйте команды правой кнопкой мыши, дожидаясь завершения предыдущей.
 
    ::: warning
    • Предварительно отключите брандмауэр и антивирус вашей ОС.
